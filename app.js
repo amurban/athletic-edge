@@ -20,6 +20,7 @@ const ESPN_URLS = {
   nfl: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',
   nba: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
   mlb: 'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard',
+  soccer: 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard',
 };
 
 async function loadScores(league, tabEl) {
