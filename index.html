@@ -30,6 +30,7 @@
     <a href="#" onclick="showPage('about'); toggleMenu()">About</a>
     <a href="#" onclick="showPage('episodes'); toggleMenu()">Episodes</a>
     <a href="#" onclick="showPage('scores'); toggleMenu()">Scores</a>
+    <a href="#" onclick="showPage('standings'); toggleMenu()">Standings</a>
     <a href="#" onclick="showPage('social'); toggleMenu()">Social</a>
     <a href="https://open.spotify.com/show/0vyqGyETZZCTiz06vMgk1z" target="_blank">Listen on Spotify</a>
   </div>
@@ -169,6 +170,23 @@
         </div>
         <div id="scores-container">
           <div class="scores-loading">Loading scores...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STANDINGS -->
+    <section id="page-standings" class="page">
+      <div class="container">
+        <h2 class="section-title">Standings</h2>
+        <p class="section-sub">Current standings across all major leagues.</p>
+        <div class="scores-tabs">
+          <button class="score-tab active" onclick="loadStandings('nfl', this)">NFL</button>
+          <button class="score-tab" onclick="loadStandings('nba', this)">NBA</button>
+          <button class="score-tab" onclick="loadStandings('mlb', this)">MLB</button>
+          <button class="score-tab" onclick="loadStandings('soccer', this)">World Cup</button>
+        </div>
+        <div id="standings-container">
+          <div class="scores-loading">Loading standings...</div>
         </div>
       </div>
     </section>

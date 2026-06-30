@@ -3,6 +3,7 @@ function showPage(id) {
   document.getElementById('page-' + id).classList.add('active');
   document.getElementById('hero').style.display = id === 'about' ? '' : 'none';
   if (id === 'scores') loadScores('nfl', document.querySelector('.score-tab'));
+  if (id === 'standings') loadStandings('nfl', document.querySelector('#page-standings .score-tab'));
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -16,6 +17,64 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // SCORES via ESPN API (no key needed)
+const STANDINGS_URLS = {
+  nfl: 'https://site.api.espn.com/apis/v2/sports/football/nfl/standings',
+  nba: 'https://site.api.espn.com/apis/v2/sports/basketball/nba/standings',
+  mlb: 'https://site.api.espn.com/apis/v2/sports/baseball/mlb/standings',
+  soccer: 'https://site.api.espn.com/apis/v2/sports/soccer/fifa.world/standings',
+};
+
+async function loadStandings(league, tabEl) {
+  document.querySelectorAll('#page-standings .score-tab').forEach(t => t.classList.remove('active'));
+  if (tabEl) tabEl.classList.add('active');
+
+  const container = document.getElementById('standings-container');
+  container.innerHTML = '<div class="scores-loading">Loading standings...</div>';
+
+  try {
+    const res = await fetch(STANDINGS_URLS[league]);
+    const data = await res.json();
+    const groups = data.children || (data.standings ? [data] : []);
+
+    if (!groups.length) {
+      container.innerHTML = '<div class="scores-error">No standings available right now.</div>';
+      return;
+    }
+
+    let html = '';
+    groups.forEach(group => {
+      const name = group.name || group.abbreviation || '';
+      const entries = group.standings?.entries || [];
+      if (!entries.length) return;
+
+      const headers = entries[0]?.stats?.slice(0, 5).map(s => s.shortDisplayName || s.name) || [];
+
+      html += `<div class="standings-table">
+        <div class="standings-group">${name}</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Team</th>
+              ${headers.map(h => `<th>${h}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${entries.map((e, i) => {
+              const team = e.team?.shortDisplayName || e.team?.displayName || '';
+              const stats = e.stats?.slice(0, 5).map(s => `<td>${s.displayValue}</td>`).join('') || '';
+              return `<tr><td class="team-name"><span class="rank">${i+1}</span>${team}</td>${stats}</tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    });
+
+    container.innerHTML = html || '<div class="scores-error">No standings available right now.</div>';
+  } catch (e) {
+    container.innerHTML = '<div class="scores-error">Could not load standings. Please try again later.</div>';
+  }
+}
+
 const ESPN_URLS = {
   nfl: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',
   nba: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
