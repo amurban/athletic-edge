@@ -3,7 +3,6 @@ function showPage(id) {
   document.getElementById('page-' + id).classList.add('active');
   document.getElementById('hero').style.display = id === 'about' ? '' : 'none';
   if (id === 'scores') loadScores('nfl', document.querySelector('.score-tab'));
-  if (id === 'standings') loadStandings('nfl', document.querySelector('#page-standings .score-tab'));
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -17,6 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // SCORES via ESPN API (no key needed)
+function openStandings() {
+  document.getElementById('standings-drawer').classList.add('open');
+  document.getElementById('standings-overlay').classList.add('open');
+  loadStandings('nfl', document.querySelector('#standings-drawer .score-tab'));
+}
+
+function closeStandings() {
+  document.getElementById('standings-drawer').classList.remove('open');
+  document.getElementById('standings-overlay').classList.remove('open');
+}
+
 const STANDINGS_URLS = {
   nfl: 'https://site.api.espn.com/apis/v2/sports/football/nfl/standings',
   nba: 'https://site.api.espn.com/apis/v2/sports/basketball/nba/standings',
@@ -25,7 +35,7 @@ const STANDINGS_URLS = {
 };
 
 async function loadStandings(league, tabEl) {
-  document.querySelectorAll('#page-standings .score-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#standings-drawer .score-tab').forEach(t => t.classList.remove('active'));
   if (tabEl) tabEl.classList.add('active');
 
   const container = document.getElementById('standings-container');
@@ -104,8 +114,8 @@ async function loadScores(league, tabEl) {
       const home = comp.competitors.find(c => c.homeAway === 'home');
       const away = comp.competitors.find(c => c.homeAway === 'away');
       const status = event.status.type;
-      const homeScore = parseInt(home.score || 0);
-      const awayScore = parseInt(away.score || 0);
+      const homeScore = parseInt(home.score ?? 0);
+      const awayScore = parseInt(away.score ?? 0);
       const homeWin = status.completed && homeScore > awayScore;
       const awayWin = status.completed && awayScore > homeScore;
 
@@ -113,8 +123,8 @@ async function loadScores(league, tabEl) {
       let statusClass = '';
       if (status.completed) {
         statusText = 'Final';
-      } else if (status.name === 'STATUS_IN_PROGRESS') {
-        statusText = event.status.displayClock + ' · ' + (event.status.period ? 'Q' + event.status.period : '');
+      } else if (status.name === 'STATUS_IN_PROGRESS' || status.name === 'STATUS_FIRST_HALF' || status.name === 'STATUS_SECOND_HALF') {
+        statusText = (event.status.displayClock || '') + (event.status.period ? ' · ' + event.status.period : '');
         statusClass = 'live';
       } else {
         statusText = event.date ? new Date(event.date).toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : 'Scheduled';
